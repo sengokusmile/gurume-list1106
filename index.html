@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff6e3">
+<link rel="icon" type="image/png" href="logo-320.png">
+<title>長者町 MEAT &amp; BENTO LAND｜テイクアウト園内マップ</title>
+<style>
+  :root {
+    --bg: #fff6e3;
+    --ink: #3b2a1a;
+    --paper: #fffdf7;
+    --grass: #cfe9b4;
+    --grass2: #b9dd98;
+    --water: #8fd3f4;
+    --road: #f3e2c0;
+    --tonkatsu: #f2a516;
+    --yakiniku: #e5483a;
+    --bento: #2f9fd8;
+    --chicken: #4bb35b;
+    --steak: #9a57c8;
+    --gold: #ffcf3f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Hiragino Maru Gothic ProN", "Hiragino Sans", "BIZ UDPGothic", "Meiryo", sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 10% 10%, #ffe2a8 0 8%, transparent 9%),
+      radial-gradient(circle at 90% 20%, #ffd1d1 0 6%, transparent 7%),
+      repeating-linear-gradient(45deg, #fff6e3 0 22px, #fff0d4 22px 44px);
+    min-height: 100vh;
+  }
+
+  /* ===== ヘッダー ===== */
+  header {
+    text-align: center;
+    padding: 18px 12px 6px;
+    position: relative;
+  }
+  .ticket {
+    display: inline-block;
+    background: var(--yakiniku);
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: .15em;
+    padding: 4px 14px;
+    border-radius: 999px;
+    box-shadow: 0 3px 0 #a52a1f;
+  }
+  h1 {
+    margin: 8px 0 2px;
+    font-size: clamp(26px, 5vw, 48px);
+    line-height: 1.1;
+    letter-spacing: .02em;
+    color: #fff;
+    -webkit-text-stroke: 2px var(--ink);
+    paint-order: stroke fill;
+    text-shadow: 0 5px 0 var(--ink), 0 8px 12px rgba(0,0,0,.18);
+  }
+  h1 .meat { color: var(--yakiniku); }
+  h1 .bento { color: var(--bento); }
+  h1 .amp { color: var(--gold); }
+  .sub {
+    font-size: 14px;
+    margin: 10px 0 0;
+  }
+  .sub b { background: var(--gold); padding: 0 6px; border-radius: 4px; }
+
+  /* ===== レイアウト ===== */
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 16px;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 12px 16px 24px;
+  }
+  @media (max-width: 960px) {
+    main { grid-template-columns: 1fr; }
+  }
+
+  .map-frame {
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 0 8px 0 var(--ink);
+    overflow: hidden;
+    position: relative;
+  }
+  .map-frame svg { display: block; width: 100%; height: auto; }
+
+  /* ===== SVG 内スタイル ===== */
+  .label-area {
+    font-size: 15px; font-weight: 700; fill: var(--ink);
+    paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round;
+  }
+  .label-small {
+    font-size: 12px; font-weight: 700; fill: #6b5236;
+    paint-order: stroke; stroke: #fff; stroke-width: 4px; stroke-linejoin: round;
+  }
+  .label-river {
+    font-size: 16px; font-weight: 700; fill: #1d6e99; letter-spacing: .3em;
+  }
+  .ring-label {
+    font-size: 13px; font-weight: 700; fill: #a5602b;
+    paint-order: stroke; stroke: #fff6e3; stroke-width: 4px;
+  }
+  .cloud { animation: drift 40s linear infinite; }
+  .cloud.c2 { animation-duration: 55s; animation-delay: -20s; }
+  @keyframes drift {
+    from { transform: translateX(-200px); }
+    to   { transform: translateX(1400px); }
+  }
+  .wheel { transform-box: fill-box; transform-origin: center; animation: spin 24s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .flag { transform-box: fill-box; transform-origin: left center; animation: wave 1.6s ease-in-out infinite alternate; }
+  @keyframes wave { from { transform: skewY(-6deg) scaleX(.92); } to { transform: skewY(6deg) scaleX(1); } }
+  .boat { transform-box: fill-box; transform-origin: center bottom; animation: rock 2.2s ease-in-out infinite alternate; }
+  @keyframes rock { from { transform: rotate(-6deg) translateY(0); } to { transform: rotate(6deg) translateY(-3px); } }
+  .flame { transform-box: fill-box; transform-origin: bottom center; animation: flicker .5s ease-in-out infinite alternate; }
+  @keyframes flicker { from { transform: scaleY(.85); } to { transform: scaleY(1.1); } }
+  .here-pulse { transform-box: fill-box; transform-origin: center; animation: pulse 2s ease-out infinite; }
+  @keyframes pulse { from { transform: scale(.6); opacity: .9; } to { transform: scale(2.4); opacity: 0; } }
+
+  .pin { cursor: pointer; outline: none; }
+  .pin .bob { transform-box: fill-box; transform-origin: bottom center; animation: bob 2.4s ease-in-out infinite; }
+  .pin:nth-of-type(3n) .bob { animation-delay: -.8s; }
+  .pin:nth-of-type(3n+1) .bob { animation-delay: -1.6s; }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+  .pin .body { transition: transform .2s; transform-box: fill-box; transform-origin: bottom center; }
+  .pin:hover .body, .pin:focus .body { transform: scale(1.25); }
+  .pin .glow { opacity: 0; }
+  .pin.active .glow { opacity: 1; transform-box: fill-box; transform-origin: center; animation: pulse 1.2s ease-out infinite; }
+  .pin.dim { opacity: .18; pointer-events: none; }
+  .pin-num {
+    font-size: 11px; font-weight: 800; fill: #fff;
+  }
+  .pin-emoji { font-size: 20px; }
+
+  /* ===== サイドパネル ===== */
+  aside {
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 22px;
+    box-shadow: 0 8px 0 var(--ink);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: calc(100vh - 40px);
+    position: sticky;
+    top: 12px;
+  }
+  @media (max-width: 960px) {
+    aside { position: static; max-height: none; }
+  }
+  aside h2 {
+    margin: 0;
+    font-size: 18px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .filters { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filters button {
+    border: 2px solid var(--ink);
+    background: #fff;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 0 var(--ink);
+    transition: transform .1s, box-shadow .1s;
+  }
+  .filters button:active { transform: translateY(3px); box-shadow: 0 0 0 var(--ink); }
+  .filters button.on { color: #fff; }
+  .filters button[data-zone="all"].on { background: var(--ink); }
+
+  .lucky {
+    border: 3px solid var(--ink);
+    background: linear-gradient(180deg, #ffe066, #ffb703);
+    border-radius: 14px;
+    padding: 10px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  .lucky:active { transform: translateY(4px); box-shadow: none; }
+
+  .list { list-style: none; margin: 0; padding: 0; overflow-y: auto; flex: 1; }
+  .list li {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    padding: 8px 6px;
+    border-bottom: 2px dashed #ecd9b5;
+    cursor: pointer;
+    border-radius: 10px;
+  }
+  .list li:hover, .list li.active { background: #fff1c9; }
+  .list .num {
+    width: 28px; height: 28px; border-radius: 50%;
+    color: #fff; font-weight: 800; font-size: 13px;
+    display: grid; place-items: center;
+    border: 2px solid var(--ink);
+  }
+  .list .name { font-weight: 700; font-size: 14px; line-height: 1.3; }
+  .list .meta { font-size: 11px; color: #7a6248; }
+  .list .walk {
+    font-size: 12px; font-weight: 800; white-space: nowrap;
+    background: #fff; border: 2px solid var(--ink); border-radius: 8px; padding: 2px 6px;
+  }
+  .chain-badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    background: #eee; border-radius: 4px; padding: 0 4px; margin-left: 4px; vertical-align: 1px;
+  }
+
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px; font-size: 12px; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--ink); display: inline-block; }
+
+  /* ===== 詳細カード ===== */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(59,42,26,.45);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+    z-index: 10;
+  }
+  .overlay.show { display: flex; }
+  .card {
+    width: min(440px, 100%);
+    background: var(--paper);
+    border: 4px solid var(--ink);
+    border-radius: 24px;
+    box-shadow: 0 10px 0 var(--ink);
+    overflow: hidden auto;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    animation: popin .25s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes popin { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .card-head {
+    padding: 16px 18px 12px;
+    color: #fff;
+    position: relative;
+    background-image: repeating-linear-gradient(-45deg, rgba(255,255,255,.12) 0 12px, transparent 12px 24px);
+  }
+  .card-head .zone { font-size: 12px; font-weight: 700; opacity: .95; }
+  .card-head h3 { margin: 4px 0 0; padding-right: 58px; font-size: 22px; line-height: 1.25; text-shadow: 0 2px 0 rgba(0,0,0,.25); overflow-wrap: anywhere; }
+  .card-head .big-emoji { position: absolute; right: 14px; top: 8px; font-size: 44px; filter: drop-shadow(0 3px 0 rgba(0,0,0,.2)); }
+  .card-body { padding: 14px 18px 18px; display: grid; gap: 10px; font-size: 14px; }
+  .row { display: grid; grid-template-columns: 92px 1fr; gap: 6px; margin: 0; }
+  .row dd { overflow-wrap: anywhere; }
+  .row dt { font-weight: 800; color: #8a6a44; margin: 0; }
+  .row dd { margin: 0; }
+  .meter { letter-spacing: 2px; font-size: 18px; }
+  .meter .off { filter: grayscale(1); opacity: .25; }
+  .note { font-size: 12px; background: #fff1c9; border-radius: 10px; padding: 8px 10px; }
+  .card-actions { display: flex; gap: 8px; }
+  .card-actions a, .card-actions button {
+    flex: 1; text-align: center; text-decoration: none;
+    font: inherit; font-weight: 800; font-size: 14px;
+    border: 3px solid var(--ink); border-radius: 12px;
+    padding: 9px; cursor: pointer; color: var(--ink);
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  .card-actions a { background: #bfe7ff; }
+  .card-actions button { background: #fff; }
+
+  footer {
+    max-width: 1500px; margin: 0 auto; padding: 0 16px 28px;
+    font-size: 12px; color: #7a6248; line-height: 1.7;
+  }
+  footer .warn {
+    background: #fff; border: 2px dashed #d9b98a; border-radius: 12px; padding: 10px 14px;
+  }
+  footer .print-btn {
+    margin-top: 10px;
+    border: 2px solid var(--ink); background: #fff; border-radius: 999px;
+    padding: 6px 14px; font: inherit; font-weight: 700; cursor: pointer;
+    box-shadow: 0 3px 0 var(--ink);
+  }
+
+  /* ===== Smile App ロゴ ===== */
+  .brand {
+    position: absolute; left: 18px; top: 14px;
+    width: 92px; height: 92px; border-radius: 50%;
+    background: #fff; border: 4px solid var(--ink);
+    box-shadow: 0 5px 0 var(--ink);
+    display: grid; place-items: center;
+    transform: rotate(-8deg);
+    text-decoration: none;
+    transition: transform .2s;
+  }
+  .brand:hover { transform: rotate(4deg) scale(1.06); }
+  .brand img { width: 76%; height: 76%; object-fit: contain; display: block; }
+  .brand::after {
+    content: "presented by";
+    position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: var(--ink);
+    border: 2px solid var(--ink); border-radius: 999px;
+    font-size: 9px; font-weight: 800; letter-spacing: .04em;
+    padding: 0 6px; white-space: nowrap;
+  }
+  .credit {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-top: 16px; font-size: 12px; font-weight: 700; color: var(--ink);
+  }
+  .credit img { width: 44px; height: 44px; }
+
+  /* ===== マップの操作ボタン（スマホのみ表示） ===== */
+  .map-scroll { position: relative; }
+  .map-controls, .map-hint { display: none; }
+  body.modal-open { overflow: hidden; }
+  html { -webkit-text-size-adjust: 100%; }
+  button, a, .pin, .list li { -webkit-tap-highlight-color: transparent; }
+
+  /* ===== スマートフォン用レイアウト ===== */
+  @media (max-width: 760px) {
+    header { padding: 12px 10px 2px; }
+    .brand {
+      position: relative; left: auto; top: auto;
+      display: inline-grid; vertical-align: middle;
+      width: 42px; height: 42px; margin-right: 6px;
+      border-width: 3px; box-shadow: 0 3px 0 var(--ink);
+    }
+    .brand::after { display: none; }
+    .ticket { vertical-align: middle; }
+    .ticket { font-size: 10px; padding: 3px 10px; letter-spacing: .08em; }
+    h1 {
+      font-size: 27px; margin-top: 6px;
+      -webkit-text-stroke: 1.5px var(--ink);
+      text-shadow: 0 3px 0 var(--ink);
+    }
+    h1 .line2 { display: block; }
+    .sub { font-size: 11.5px; line-height: 1.6; margin-top: 6px; }
+    .sub .sep { display: none; }
+    .sub .tail { display: block; }
+
+    main { padding: 8px 10px 16px; gap: 12px; grid-template-columns: minmax(0, 1fr); }
+    main > * { min-width: 0; }
+
+    .map-frame { border-width: 3px; border-radius: 18px; box-shadow: 0 5px 0 var(--ink); }
+    .map-scroll {
+      height: 58vh; height: 58svh; min-height: 300px; max-height: 560px;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      touch-action: pan-x pan-y;
+    }
+    .map-scroll::-webkit-scrollbar { display: none; }
+    .map-scroll svg { width: 900px; max-width: none; }
+
+    .map-controls {
+      display: flex; flex-direction: column; gap: 8px;
+      position: absolute; right: 10px; bottom: 10px; z-index: 2;
+    }
+    .map-controls button {
+      width: 44px; height: 44px; border-radius: 14px;
+      border: 3px solid var(--ink); background: #fff;
+      font: inherit; font-size: 20px; font-weight: 800; line-height: 1;
+      box-shadow: 0 3px 0 var(--ink); cursor: pointer; color: var(--ink);
+      display: grid; place-items: center; padding: 0;
+    }
+    .map-controls button:active { transform: translateY(3px); box-shadow: none; }
+    .map-controls button:disabled { opacity: .35; }
+    .map-hint {
+      display: block;
+      position: absolute; left: 10px; top: 10px; z-index: 2;
+      background: rgba(59,42,26,.82); color: #fff;
+      font-size: 11px; font-weight: 700;
+      padding: 5px 10px; border-radius: 999px;
+      pointer-events: none;
+      transition: opacity .4s;
+    }
+    .map-hint.hide { opacity: 0; }
+
+    aside { padding: 12px; border-width: 3px; border-radius: 18px; box-shadow: 0 5px 0 var(--ink); }
+    .filters {
+      flex-wrap: nowrap; overflow-x: auto;
+      margin: 0 -12px; padding: 2px 12px 6px;
+      scrollbar-width: none;
+    }
+    .filters::-webkit-scrollbar { display: none; }
+    .filters button { flex: 0 0 auto; padding: 7px 12px; }
+    .lucky { font-size: 14px; }
+    .list li { grid-template-columns: 30px 1fr auto; padding: 10px 4px; }
+    .list .name { font-size: 14.5px; }
+    .list .meta { font-size: 11px; }
+
+    footer { padding: 0 10px calc(20px + env(safe-area-inset-bottom)); }
+
+    /* ポップアップ → 下から出るシート */
+    .overlay { align-items: flex-end; padding: 0; }
+    .card {
+      width: 100%;
+      max-height: 86vh; max-height: 86dvh;
+      border-width: 3px 0 0; border-radius: 22px 22px 0 0;
+      box-shadow: 0 -6px 24px rgba(0,0,0,.25);
+      animation: sheetup .28s cubic-bezier(.2,.9,.3,1);
+      overscroll-behavior: contain;
+    }
+    @keyframes sheetup { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .card-head { padding: 18px 16px 12px; }
+    .card-head::before {
+      content: ""; position: absolute; left: 50%; top: 7px;
+      width: 40px; height: 5px; border-radius: 3px;
+      background: rgba(255,255,255,.7); transform: translateX(-50%);
+    }
+    .card-head h3 { font-size: 19px; padding-right: 50px; }
+    .card-head .big-emoji { font-size: 36px; top: 14px; right: 12px; }
+    .card-body { padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); gap: 9px; font-size: 13.5px; }
+    .row { grid-template-columns: 78px 1fr; }
+    .card-actions a, .card-actions button { padding: 11px 6px; font-size: 13.5px; }
+  }
+
+  /* ===== 印刷（A4縦1枚） ===== */
+  .print-only { display: none; }
+  @media print {
+    @page { size: A4 portrait; margin: 8mm; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html, body {
+      background: #fff !important;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    header { padding: 0 0 2mm; }
+    h1 { font-size: 25pt; margin: 0; text-shadow: 0 2px 0 var(--ink); }
+    .sub { font-size: 8.5pt; margin-top: 1.5mm; line-height: 1.4; }
+    h1 .line2, .sub .sep, .sub .tail { display: inline !important; }
+    header { position: relative; }
+    .brand { position: absolute; display: grid; margin: 0; width: 15mm; height: 15mm; left: 0; top: 0; border-width: 2px; box-shadow: none; }
+    .brand::after { display: none !important; }
+    .ticket { margin-left: 0 !important; }
+    .credit { display: none; }
+    h1 { -webkit-text-stroke: 2px var(--ink); }
+    main { padding: 0 !important; }
+    footer { padding: 2.5mm 0 0 !important; }
+    .ticket, .filters, .lucky, .legend, .overlay, .cloud, .print-btn, aside h2 small { display: none !important; }
+
+    main { display: block; padding: 0; max-width: none; }
+    .map-frame { border-width: 2px; border-radius: 10px; box-shadow: none; }
+    .map-scroll { height: auto !important; max-height: none !important; overflow: visible !important; }
+    .map-scroll svg { width: 100% !important; }
+    .map-controls, .map-hint { display: none !important; }
+    .pin .glow { opacity: 0 !important; }
+
+    aside {
+      position: static; max-height: none; display: block;
+      border: none; box-shadow: none; padding: 2.5mm 0 0; background: none;
+    }
+    aside h2 { font-size: 11pt; margin: 0 0 1mm; }
+    .list { overflow: visible; display: grid; grid-template-columns: 1fr 1fr; column-gap: 5mm; }
+    .list li {
+      grid-template-columns: 5.5mm 1fr auto; gap: 2mm;
+      padding: 0.55mm 0.5mm; border-bottom: 1px dashed #e2cfa8; border-radius: 0;
+      break-inside: avoid; background: none !important;
+    }
+    .list .num { width: 5.5mm; height: 5.5mm; font-size: 7.5pt; border-width: 1px; }
+    .list .name { font-size: 8.5pt; line-height: 1.25; }
+    .list .meta { font-size: 6.5pt; }
+    .list .walk { font-size: 7.5pt; border-width: 1px; border-radius: 4px; padding: 0 1mm; }
+    .chain-badge { font-size: 6pt; }
+
+    footer {
+      display: flex; gap: 4mm; align-items: stretch;
+      padding: 2.5mm 0 0; max-width: none;
+      font-size: 6.8pt; line-height: 1.45; color: #5c4630;
+    }
+    footer .warn { flex: 1; border-width: 1px; border-radius: 6px; padding: 2mm 3mm; }
+    .print-only.qr-box {
+      display: flex; gap: 3mm; align-items: center;
+      border: 2px solid var(--ink); border-radius: 6px; padding: 2mm 3mm;
+      width: 92mm; color: var(--ink);
+    }
+    .qr-box img { width: 26mm; height: 26mm; display: block; }
+    .qr-box b { font-size: 9pt; display: block; margin-bottom: 1mm; }
+    .qr-box .url { font-size: 6pt; word-break: break-all; color: #5c4630; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="#" aria-label="Smile App"><img src="logo-320.png" alt="Smile App"></a>
+  <span class="ticket">★ 1DAY FREE PASS ★ テイクアウト専用パーク</span>
+  <h1>🎡 長者町 <span class="meat">MEAT</span> <span class="amp">&amp;</span> <span class="line2"><span class="bento">BENTO</span> LAND</span></h1>
+  <p class="sub">エントランス：<b>横浜市中区長者町9丁目158番地</b><span class="sep"> ／ </span><span class="tail">徒歩10分圏のお肉・定食・お弁当アトラクション</span></p>
+</header>
+
+<main>
+  <div class="map-frame">
+    <div class="map-hint" id="mapHint">👆 指で動かせます</div>
+    <div class="map-controls" aria-label="マップの操作">
+      <button type="button" id="zoomIn" aria-label="拡大">＋</button>
+      <button type="button" id="zoomOut" aria-label="縮小">－</button>
+      <button type="button" id="zoomHere" aria-label="現在地へ移動">⭐</button>
+    </div>
+    <div class="map-scroll" id="mapScroll">
+    <svg id="map" viewBox="0 0 1200 820" role="img" aria-label="長者町周辺テイクアウト店のイラストマップ">
+      <defs>
+        <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
+          <circle cx="3" cy="3" r="1.6" fill="#a8d07f"/>
+        </pattern>
+        <linearGradient id="riverGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#7cc8ef"/>
+          <stop offset="1" stop-color="#a7e0fb"/>
+        </linearGradient>
+        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="3" stdDeviation="0" flood-color="#3b2a1a" flood-opacity=".9"/>
+        </filter>
+      </defs>
+
+      <!-- 地面 -->
+      <rect width="1200" height="820" fill="var(--grass)"/>
+      <rect width="1200" height="820" fill="url(#dots)"/>
+
+      <!-- 区画（街のブロック） -->
+      <g fill="#e8f5d6" stroke="#9cc879" stroke-width="2">
+        <rect x="40" y="60" width="250" height="170" rx="26"/>
+        <rect x="180" y="250" width="210" height="160" rx="26"/>
+        <rect x="470" y="140" width="250" height="150" rx="26"/>
+        <rect x="490" y="330" width="250" height="160" rx="26"/>
+        <rect x="770" y="230" width="250" height="160" rx="26"/>
+        <rect x="380" y="520" width="240" height="150" rx="26"/>
+        <rect x="660" y="560" width="250" height="150" rx="26"/>
+        <rect x="900" y="70" width="270" height="130" rx="26"/>
+        <rect x="60" y="610" width="220" height="170" rx="26"/>
+      </g>
+
+      <!-- 徒歩圏リング（現在地中心） -->
+      <g fill="none" stroke="#d98b46" stroke-width="3" stroke-dasharray="10 9" opacity=".85">
+        <circle cx="440" cy="430" r="220"/>
+        <circle cx="440" cy="430" r="440"/>
+      </g>
+      <text class="ring-label" x="440" y="202" text-anchor="middle">― 徒歩 約5分 ―</text>
+      <text class="ring-label" text-anchor="middle" transform="translate(692 790) rotate(-35)" dy="4">― 徒歩 約10分 ―</text>
+
+      <!-- 道路 -->
+      <g stroke-linecap="round" fill="none">
+        <!-- 伊勢佐木モール（メインストリート） -->
+        <path d="M1120 150 L560 800" stroke="#ffffff" stroke-width="44"/>
+        <path d="M1120 150 L560 800" stroke="#ffd98a" stroke-width="34"/>
+        <path d="M1120 150 L560 800" stroke="#e8a94c" stroke-width="2" stroke-dasharray="4 14"/>
+        <!-- 長者町通り -->
+        <path d="M420 430 L1000 560" stroke="#ffffff" stroke-width="28"/>
+        <path d="M420 430 L1000 560" stroke="var(--road)" stroke-width="20"/>
+        <!-- 平戸桜木道路（日ノ出町側） -->
+        <path d="M60 560 L520 0" stroke="#ffffff" stroke-width="26"/>
+        <path d="M60 560 L520 0" stroke="var(--road)" stroke-width="18"/>
+        <!-- 京急線 -->
+        <path d="M0 470 C 160 380, 240 300, 330 180 S 470 20, 520 -10" stroke="#5b5b5b" stroke-width="9"/>
+        <path d="M0 470 C 160 380, 240 300, 330 180 S 470 20, 520 -10" stroke="#ffffff" stroke-width="4" stroke-dasharray="12 10"/>
+        <!-- 横の小道 -->
+        <path d="M600 120 L760 820" stroke="var(--road)" stroke-width="12" opacity=".9"/>
+        <path d="M300 820 L470 430" stroke="var(--road)" stroke-width="12" opacity=".9"/>
+      </g>
+
+      <!-- 大岡川 -->
+      <path d="M90 830 C 220 690, 300 600, 360 480 S 470 260, 560 170 S 760 20, 840 -20"
+            fill="none" stroke="url(#riverGrad)" stroke-width="58" stroke-linecap="round"/>
+      <path d="M90 830 C 220 690, 300 600, 360 480 S 470 260, 560 170 S 760 20, 840 -20"
+            fill="none" stroke="#ffffff" stroke-width="3" stroke-dasharray="18 26" opacity=".8"/>
+      <text class="label-river" transform="translate(475 280) rotate(-50)">〰 大岡川 リバーライド 〰</text>
+
+      <!-- スシ・ボート（飾り） -->
+      <g transform="translate(336 528) rotate(-55)">
+        <g class="boat">
+          <path d="M-30 0 L30 0 L20 14 L-20 14z" fill="#ff6f91" stroke="#3b2a1a" stroke-width="2.5"/>
+          <line x1="0" y1="0" x2="0" y2="-30" stroke="#3b2a1a" stroke-width="2"/>
+          <path d="M0 -30 L22 -20 L0 -10z" fill="#fff" stroke="#3b2a1a" stroke-width="2"/>
+          <text x="-14" y="-4" font-size="14">🍣</text>
+        </g>
+      </g>
+
+      <!-- 橋 -->
+      <g fill="#c98b57" stroke="#3b2a1a" stroke-width="2.5">
+        <rect x="-38" y="-9" width="76" height="18" rx="5" transform="translate(395 430) rotate(30)"/>
+        <rect x="-38" y="-9" width="76" height="18" rx="5" transform="translate(498 245) rotate(40)"/>
+        <rect x="-38" y="-9" width="76" height="18" rx="5" transform="translate(268 640) rotate(38)"/>
+      </g>
+      <text class="label-small" x="356" y="462" text-anchor="end">長者橋</text>
+
+      <!-- 森・木 -->
+      <g id="trees">
+        <g transform="translate(1080 640)"><circle r="22" fill="#6dbb4f"/><circle cx="18" cy="8" r="16" fill="#5aa83f"/><rect x="-3" y="14" width="6" height="14" fill="#8a5a33"/></g>
+        <g transform="translate(1140 720)"><circle r="18" fill="#6dbb4f"/><rect x="-3" y="12" width="6" height="12" fill="#8a5a33"/></g>
+        <g transform="translate(70 300)"><circle r="20" fill="#6dbb4f"/><circle cx="-16" cy="8" r="14" fill="#5aa83f"/><rect x="-3" y="14" width="6" height="12" fill="#8a5a33"/></g>
+        <g transform="translate(1150 420)"><circle r="16" fill="#6dbb4f"/><rect x="-3" y="10" width="6" height="12" fill="#8a5a33"/></g>
+      </g>
+
+      <!-- 観覧車（飾り・関内方面） -->
+      <g transform="translate(1110 300)">
+        <rect x="-4" y="0" width="8" height="70" fill="#8a5a33" transform="rotate(18)"/>
+        <rect x="-4" y="0" width="8" height="70" fill="#8a5a33" transform="rotate(-18)"/>
+        <g class="wheel">
+          <circle r="54" fill="none" stroke="#ff7aa2" stroke-width="6"/>
+          <g stroke="#ffb3c8" stroke-width="3">
+            <line x1="-54" y1="0" x2="54" y2="0"/><line x1="0" y1="-54" x2="0" y2="54"/>
+            <line x1="-38" y1="-38" x2="38" y2="38"/><line x1="-38" y1="38" x2="38" y2="-38"/>
+          </g>
+          <g stroke="#3b2a1a" stroke-width="1.5">
+            <circle cx="54" cy="0" r="9" fill="#ffd166"/><circle cx="-54" cy="0" r="9" fill="#06d6a0"/>
+            <circle cx="0" cy="54" r="9" fill="#118ab2"/><circle cx="0" cy="-54" r="9" fill="#ef476f"/>
+            <circle cx="38" cy="38" r="9" fill="#9b5de5"/><circle cx="-38" cy="-38" r="9" fill="#f15bb5"/>
+            <circle cx="38" cy="-38" r="9" fill="#00bbf9"/><circle cx="-38" cy="38" r="9" fill="#fee440"/>
+          </g>
+          <circle r="8" fill="#3b2a1a"/>
+        </g>
+      </g>
+
+      <!-- とんかつ城（飾り：長八・かつ半の近く） -->
+      <g transform="translate(560 365)">
+        <rect x="-40" y="-30" width="80" height="50" fill="#ffe7a8" stroke="#3b2a1a" stroke-width="3"/>
+        <rect x="-50" y="-55" width="22" height="75" fill="#ffd27a" stroke="#3b2a1a" stroke-width="3"/>
+        <rect x="28" y="-55" width="22" height="75" fill="#ffd27a" stroke="#3b2a1a" stroke-width="3"/>
+        <polygon points="-54,-55 -39,-80 -24,-55" fill="var(--tonkatsu)" stroke="#3b2a1a" stroke-width="3"/>
+        <polygon points="24,-55 39,-80 54,-55" fill="var(--tonkatsu)" stroke="#3b2a1a" stroke-width="3"/>
+        <polygon points="-28,-30 0,-62 28,-30" fill="#e58a00" stroke="#3b2a1a" stroke-width="3"/>
+        <path d="M-10 20 v-22 a10 10 0 0 1 20 0 v22z" fill="#8a5a33" stroke="#3b2a1a" stroke-width="2"/>
+        <line x1="0" y1="-62" x2="0" y2="-84" stroke="#3b2a1a" stroke-width="2"/>
+        <path class="flag" d="M0 -84 l18 5 l-18 5z" fill="var(--yakiniku)"/>
+        <text class="label-small" y="40" text-anchor="middle">🏰 とんかつ城</text>
+      </g>
+
+      <!-- 焼肉ファイヤー山（飾り：牛國の近く） -->
+      <g transform="translate(860 300)">
+        <polygon points="-55,30 0,-45 55,30" fill="#b06a3b" stroke="#3b2a1a" stroke-width="3"/>
+        <polygon points="-18,-20 0,-45 18,-20 8,-14 0,-22 -8,-14" fill="#fff" opacity=".8"/>
+        <g class="flame">
+          <path d="M0 -48 C -14 -60, -6 -78, 0 -92 C 6 -78, 16 -66, 0 -48z" fill="#ff6b35"/>
+          <path d="M0 -50 C -6 -58, -2 -68, 0 -76 C 3 -68, 8 -60, 0 -50z" fill="#ffd166"/>
+        </g>
+        <text class="label-small" y="50" text-anchor="middle">🔥 焼肉ファイヤー山</text>
+      </g>
+
+      <!-- お弁当タウン看板（飾り：若葉町） -->
+      <g transform="translate(500 640)">
+        <rect x="-48" y="-30" width="96" height="56" rx="8" fill="#e8463a" stroke="#3b2a1a" stroke-width="3"/>
+        <rect x="-40" y="-22" width="38" height="40" rx="4" fill="#fff"/>
+        <circle cx="-21" cy="-2" r="7" fill="#e5483a"/>
+        <rect x="4" y="-22" width="36" height="18" rx="4" fill="#f9c74f"/>
+        <rect x="4" y="0" width="36" height="18" rx="4" fill="#90be6d"/>
+        <text class="label-small" y="46" text-anchor="middle">🍱 お弁当タウン</text>
+      </g>
+
+      <!-- ノゲ横丁ゲート -->
+      <g transform="translate(160 120)">
+        <rect x="-50" y="-36" width="10" height="56" fill="#c0392b" stroke="#3b2a1a" stroke-width="2"/>
+        <rect x="40" y="-36" width="10" height="56" fill="#c0392b" stroke="#3b2a1a" stroke-width="2"/>
+        <rect x="-62" y="-48" width="124" height="14" rx="4" fill="#c0392b" stroke="#3b2a1a" stroke-width="2"/>
+        <rect x="-34" y="-30" width="68" height="18" rx="3" fill="#fff8e1" stroke="#3b2a1a" stroke-width="2"/>
+        <text x="0" y="-16" font-size="12" font-weight="800" text-anchor="middle" fill="#3b2a1a">ノゲ横丁</text>
+      </g>
+
+      <!-- 雲 -->
+      <g opacity=".85" fill="#fff">
+        <g class="cloud"><ellipse cx="0" cy="40" rx="50" ry="18"/><ellipse cx="30" cy="30" rx="32" ry="20"/><ellipse cx="-24" cy="32" rx="24" ry="14"/></g>
+        <g class="cloud c2"><ellipse cx="0" cy="770" rx="44" ry="15"/><ellipse cx="26" cy="762" rx="28" ry="17"/></g>
+      </g>
+
+      <!-- 駅 -->
+      <g id="stations"></g>
+
+      <!-- エリア名 -->
+      <text class="label-area" x="70" y="250">野毛エリア</text>
+      <text class="label-area" x="200" y="400">日ノ出町・宮川町</text>
+      <text class="label-area" x="560" y="130">吉田町</text>
+      <text class="label-area" x="660" y="420">長者町</text>
+      <text class="label-area" x="400" y="700">若葉町</text>
+      <text class="label-area" x="70" y="800">黄金町・白金町</text>
+      <text class="label-area" x="760" y="740">永楽町・阪東橋方面</text>
+      <text class="label-area" x="960" y="100">関内・馬車道方面</text>
+      <text class="label-area" x="870" y="470">羽衣町</text>
+      <text class="label-small" text-anchor="middle" transform="translate(700 640) rotate(-49)" dy="-22">★ イセザキ・メインストリート（伊勢佐木モール）★</text>
+      <text class="label-small" text-anchor="middle" transform="translate(720 497) rotate(12.6)" dy="-14">長者町通り</text>
+
+      <!-- 現在地（エントランスゲート） -->
+      <g id="here" transform="translate(440 430)">
+        <circle class="here-pulse" r="18" fill="#ffcf3f"/>
+        <g transform="translate(0 -6)">
+          <rect x="-46" y="-56" width="12" height="56" fill="#ff7aa2" stroke="#3b2a1a" stroke-width="2.5"/>
+          <rect x="34" y="-56" width="12" height="56" fill="#ff7aa2" stroke="#3b2a1a" stroke-width="2.5"/>
+          <path d="M-52 -54 Q 0 -96 52 -54 L 52 -44 Q 0 -84 -52 -44z" fill="#ffcf3f" stroke="#3b2a1a" stroke-width="2.5"/>
+          <rect x="-36" y="-50" width="72" height="20" rx="6" fill="#fff" stroke="#3b2a1a" stroke-width="2.5"/>
+          <text y="-35" font-size="12" font-weight="800" text-anchor="middle" fill="#e5483a">ENTRANCE</text>
+          <line x1="-40" y1="-56" x2="-40" y2="-80" stroke="#3b2a1a" stroke-width="2"/>
+          <path class="flag" d="M-40 -80 l16 5 l-16 5z" fill="#2f9fd8"/>
+          <line x1="40" y1="-56" x2="40" y2="-80" stroke="#3b2a1a" stroke-width="2"/>
+          <path class="flag" d="M40 -80 l16 5 l-16 5z" fill="#4bb35b"/>
+        </g>
+        <circle r="11" fill="#e5483a" stroke="#fff" stroke-width="4"/>
+        <text y="5" font-size="12" text-anchor="middle" fill="#fff">★</text>
+        <g transform="translate(0 30)">
+          <rect x="-74" y="-12" width="148" height="24" rx="12" fill="#3b2a1a"/>
+          <text y="5" font-size="12" font-weight="800" text-anchor="middle" fill="#fff">現在地 長者町9-158</text>
+        </g>
+      </g>
+
+      <!-- 店のピン -->
+      <g id="pins"></g>
+    </svg>
+    </div>
+  </div>
+
+  <aside>
+    <h2>🎟️ アトラクション一覧 <small style="font-size:12px;font-weight:400">(近い順)</small></h2>
+    <div class="filters" id="filters"></div>
+    <button class="lucky" id="lucky">🎰 本日のおすすめアトラクションを引く！</button>
+    <ul class="list" id="list"></ul>
+    <div class="legend" id="legend"></div>
+  </aside>
+</main>
+
+<footer>
+  <div class="print-only qr-box">
+    <img src="qr.svg" alt="マップのQRコード">
+    <div>
+      <b>📱 スマホでもっと楽しむ！</b>
+      読み取ると、お店の詳細カードやGoogleマップへのリンクが使えるWeb版が開きます。
+      <div class="url">https://chojamachi-meat-bento-land.city-smileapp.workers.dev</div>
+    </div>
+  </div>
+  <div class="warn">
+    ⚠️ <b>ご来園前にご確認ください</b><br>
+    ・地図はテーマパーク風にデフォルメしているので、位置と徒歩分数はおおよその目安です（徒歩は分速80mで計算）。<br>
+    ・掲載している情報は、2026年11月時点でグルメサイトなどを調べてまとめたものです。営業時間・定休日・テイクアウトの可否・メニュー・価格は変わることがあります。お出かけ前に店舗へ直接ご確認ください。<br>
+    ・「肉度メーター」「魚度メーター」はパーク独自の遊びの指標で、店の公式な評価ではありません。
+    <br><button class="print-btn" onclick="window.print()">🖨️ A4で印刷する</button>
+  </div>
+  <div class="credit"><img src="logo-320.png" alt="">presented by Smile App</div>
+</footer>
+
+<!-- 詳細カード -->
+<div class="overlay" id="overlay" aria-hidden="true">
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+    <div class="card-head" id="cardHead">
+      <div class="zone" id="cardZone"></div>
+      <h3 id="cardTitle"></h3>
+      <div class="big-emoji" id="cardEmoji"></div>
+    </div>
+    <div class="card-body">
+      <dl class="row"><dt>ジャンル</dt><dd id="cardGenre"></dd></dl>
+      <dl class="row"><dt>テイクアウト</dt><dd id="cardTakeout"></dd></dl>
+      <dl class="row"><dt>予算の目安</dt><dd id="cardPrice"></dd></dl>
+      <dl class="row"><dt>住所</dt><dd id="cardAddress"></dd></dl>
+      <dl class="row"><dt>現在地から</dt><dd id="cardWalk"></dd></dl>
+      <dl class="row"><dt id="cardMeterLabel">肉度メーター</dt><dd class="meter" id="cardMeter"></dd></dl>
+      <div class="note" id="cardNote"></div>
+      <div class="card-actions">
+        <a id="cardMap" href="#" target="_blank" rel="noopener">🗺️ Googleマップ</a>
+        <button id="cardClose">とじる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== ゾーン（テーマ）定義 =====
+const ZONES = {
+  tonkatsu: { name: "とんかつ城",               emoji: "🐷", color: "var(--tonkatsu)", hex: "#f2a516" },
+  yakiniku: { name: "焼肉ファイヤーランド",       emoji: "🔥", color: "var(--yakiniku)", hex: "#e5483a" },
+  bento:    { name: "お弁当タウン",             emoji: "🍱", color: "var(--bento)",    hex: "#2f9fd8" },
+  chicken:  { name: "チキン＆定食アドベンチャー", emoji: "🍗", color: "var(--chicken)",  hex: "#4bb35b" },
+  steak:    { name: "ステーキ広場",             emoji: "🥩", color: "var(--steak)",    hex: "#9a57c8" },
+  sushi:    { name: "スシ・マリーナ",           emoji: "🍣", color: "#ff6f91",         hex: "#ff6f91", meterLabel: "魚度メーター", meterIcon: "🐟" },
+};
+
+// 現在地（SVG座標）。1px ≒ 1.8m として徒歩分数を計算
+const HERE = { x: 440, y: 430 };
+const METERS_PER_PX = 1.8;
+const METERS_PER_MIN = 80;
+
+// ===== 店舗データ =====
+// x, y はデフォルメしたマップ上の位置（おおよそ）
+const SHOPS = [
+  { name: "とんかつと和食の店 長八", zone: "tonkatsu", genre: "とんかつ・和食・定食", takeout: "とんかつ・かつ丼などの持ち帰り（グルメサイトに「テイクアウト可」の掲載あり）", price: "昼 1,300円くらい〜", address: "横浜市中区長者町9-1", x: 535, y: 490, chain: false, meat: 4, note: "エントランスのすぐ近く。大きなとんかつが名物。長時間営業の店として知られていますが、営業時間は変わることがあります。" },
+  { name: "とんかつ割烹 かつ半", zone: "tonkatsu", genre: "とんかつ・和食割烹", takeout: "ヒレかつ弁当（1,600円）などのお弁当。和食弁当は前日までに予約", price: "1,600円くらい〜", address: "横浜市中区長者町6-94", x: 650, y: 498, chain: false, meat: 4, note: "会議や集まり用のお弁当にも対応している老舗。予約が必要なお弁当があります。" },
+  { name: "とんかつ檍（あおき） 日ノ出町店", zone: "tonkatsu", genre: "とんかつ", takeout: "お持ち帰り弁当・単品（店舗情報で案内あり）", price: "1,500〜3,000円くらい", address: "横浜市中区宮川町3-91-1 エクレール横浜1番館", x: 318, y: 372, chain: true, meat: 5, note: "厚切りロースで人気の有名店。月曜定休（掲載情報）。昼と夜で営業時間が分かれています。" },
+  { name: "勝烈庵フーズ 本店", zone: "tonkatsu", genre: "とんかつ・弁当", takeout: "テイクアウト専門。かつサンドやとんかつ弁当", price: "〜1,000円くらい", address: "横浜市中区 馬車道駅の近く", x: 800, y: 92, chain: false, meat: 4, note: "横浜の老舗とんかつ「勝烈庵」のテイクアウト専門店。パークのいちばん端（徒歩10分超）。" },
+
+  { name: "牛國（ぎゅうこく）", zone: "yakiniku", genre: "焼肉・ホルモン", takeout: "テイクアウト可（ぐるなびの掲載）", price: "夜 3,000〜5,000円くらい", address: "横浜市中区伊勢佐木町2-10-4 第三泰信ビル1F", x: 938, y: 340, chain: false, meat: 5, note: "伊勢佐木モール沿いの焼肉店。持ち帰りメニューの内容は電話で確認するのが確実です。" },
+  { name: "焼肉ホルモン ケンちゃん3", zone: "yakiniku", genre: "焼肉・ホルモン", takeout: "焼肉弁当（ヒトサラの掲載）", price: "昼 1,000円くらい", address: "横浜市南区白金町1-8-1 巽ビル1F（黄金町駅すぐ）", x: 206, y: 724, chain: false, meat: 5, note: "ホルモンの焼き加減が評判。日曜定休（掲載情報）。" },
+  { name: "すき家 横浜羽衣町店", zone: "yakiniku", genre: "牛丼", takeout: "牛丼・定食のお持ち帰り", price: "〜1,000円", address: "横浜市中区羽衣町2-8-5", x: 960, y: 250, chain: true, meat: 3, note: "いつでも頼れる牛丼チェーン。" },
+
+  { name: "キッチンオリジン 伊勢佐木長者町店", zone: "bento", genre: "お弁当・お惣菜", takeout: "唐揚げ弁当・のり弁・お惣菜の量り売り", price: "〜1,000円", address: "横浜市中区長者町（伊勢佐木長者町駅から約100m）", x: 742, y: 568, chain: true, meat: 3, note: "朝早くから夜遅くまで開いている、使いやすいお弁当チェーン。" },
+  { name: "横濱うお時", zone: "bento", genre: "仕出し・お弁当", takeout: "横濱海苔弁当「きんのとき」（1,000円〜）など。配達中心", price: "1,000円くらい〜", address: "横浜市中区若葉町2-26", x: 438, y: 590, chain: false, meat: 2, note: "配達が中心のお弁当屋さん。8:00〜20:00、不定休（横浜市の掲載）。持ち帰りできるかは事前に電話で確認を。" },
+  { name: "華家名彩 日ノ出町店", zone: "bento", genre: "お弁当", takeout: "お弁当・お惣菜", price: "〜1,000円", address: "横浜市中区日ノ出町（京急ストア日ノ出町店内）", x: 250, y: 318, chain: true, meat: 2, note: "スーパーの中にあるお弁当コーナー。" },
+  { name: "尾島商店 本店", zone: "bento", genre: "揚げ物・お惣菜・お弁当", takeout: "揚げたてのフライ・コロッケ・お弁当", price: "〜1,000円くらい", address: "横浜市中区野毛（桜木町駅から約270m）", x: 110, y: 168, chain: false, meat: 3, note: "野毛の揚げ物屋さん。揚げたてをその場で買えます。" },
+
+  { name: "梅や 吉田町本店", zone: "chicken", genre: "焼き鳥・お惣菜・お弁当", takeout: "焼き鳥・焼き鳥弁当", price: "1,000〜2,000円くらい", address: "横浜市中区吉田町（日ノ出町駅から約450m）", x: 600, y: 206, chain: false, meat: 4, note: "焼き鳥のテイクアウトが人気のお店。" },
+  { name: "蒸気屋 野毛本店", zone: "chicken", genre: "和ビストロ・唐揚げ", takeout: "伝統の中津唐揚げ（750円）など", price: "夜 3,000円くらい", address: "横浜市中区野毛（日ノ出町駅から徒歩6分）", x: 208, y: 206, chain: false, meat: 3, note: "大分・中津の唐揚げが名物。持ち帰りもできます。" },
+  { name: "大戸屋ごはん処 横浜伊勢佐木町店", zone: "chicken", genre: "定食", takeout: "定食のお弁当（注文を受けてから店内で手作り）。公式サイト・アプリからネット注文もできます", price: "1,000〜1,500円くらい", address: "横浜市中区伊勢佐木町2-8-7 ハマ楽器ビルB1F", x: 1012, y: 335, chain: true, meat: 3, note: "チキンかあさん煮やしまほっけなど、定番の定食をお弁当にできます。営業時間は10:00〜21:30（公式サイト）。関内駅・伊勢佐木長者町駅から徒歩6分。" },
+  { name: "やよい軒 日の出町店", zone: "chicken", genre: "定食", takeout: "生姜焼き・唐揚げなどの定食をお弁当で", price: "〜1,000円", address: "横浜市中区宮川町（日ノ出町駅の近く）", x: 276, y: 268, chain: true, meat: 3, note: "定食チェーン。持ち帰りメニューは店舗によって違うことがあります。" },
+  { name: "ケンタッキーフライドチキン 伊勢佐木町店", zone: "chicken", genre: "フライドチキン", takeout: "オリジナルチキン・セット", price: "〜1,000円", address: "横浜市中区伊勢佐木町（伊勢佐木長者町駅から徒歩6分）", x: 870, y: 420, chain: true, meat: 4, note: "モールを歩きながら寄れるチキン。" },
+
+  { name: "助六寿司 伊勢佐木町店", zone: "sushi", genre: "回転寿司", takeout: "持ち帰りできるかは店舗にご確認ください", price: "1,000〜2,000円くらい", address: "横浜市中区長者町7-114", x: 602, y: 548, chain: false, meat: 5, note: "1皿130円くらいからの回転寿司。深夜まで営業していると紹介されています（掲載情報）。電話：045-261-3854。" },
+  { name: "平禄寿司 伊勢佐木町店", zone: "sushi", genre: "回転寿司", takeout: "握り寿司の盛り合わせ（900円くらい）などの持ち帰り（Rettyのテイクアウト掲載・口コミ）", price: "〜3,000円", address: "横浜市中区伊勢佐木町4-117", x: 900, y: 598, chain: true, meat: 5, note: "伊勢佐木モール沿いの回転寿司チェーン。伊勢佐木長者町駅から徒歩5分。" },
+  { name: "元祖寿司 伊勢佐木町店", zone: "sushi", genre: "回転寿司", takeout: "持ち帰りできるかは店舗にご確認ください", price: "1,000〜2,000円くらい", address: "横浜市中区伊勢佐木町2-62 1F", x: 1004, y: 410, chain: true, meat: 5, note: "本マグロが自慢の回転寿司。11:30〜22:00（掲載情報）。" },
+  { name: "ヒジテツ 伊勢佐木町店", zone: "steak", genre: "ステーキ・ハンバーグ", takeout: "テイクアウト可（ぐるなびの掲載）", price: "1,000〜2,000円くらい", address: "横浜市南区永楽町2-26 森ビル1F", x: 838, y: 646, chain: false, meat: 5, note: "伊勢佐木長者町駅から徒歩3分。がっつりステーキを持ち帰りたいときに。" },
+];
+
+SHOPS.forEach(s => {
+  const px = Math.hypot(s.x - HERE.x, s.y - HERE.y);
+  s.walkMin = Math.max(1, Math.round(px * METERS_PER_PX / METERS_PER_MIN));
+});
+// 近い順に並べて番号をつける
+SHOPS.sort((a, b) => a.walkMin - b.walkMin || a.name.localeCompare(b.name, "ja"));
+SHOPS.forEach((s, i) => { s.id = i + 1; });
+
+// ===== 描画 =====
+const svgNS = "http://www.w3.org/2000/svg";
+const pinsLayer = document.getElementById("pins");
+const listEl = document.getElementById("list");
+const filtersEl = document.getElementById("filters");
+const legendEl = document.getElementById("legend");
+let currentZone = "all";
+
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(svgNS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+
+// 駅
+const STATIONS = [
+  { name: "日ノ出町駅（京急）", x: 236, y: 262, lx: -22, ly: 5, anchor: "end" },
+  { name: "黄金町駅（京急）", x: 120, y: 640 },
+  { name: "伊勢佐木長者町駅（地下鉄）", x: 790, y: 520, lx: 22, ly: 5, anchor: "start" },
+];
+const stLayer = document.getElementById("stations");
+STATIONS.forEach(st => {
+  const g = el("g", { transform: `translate(${st.x} ${st.y})` }, stLayer);
+  el("rect", { x: -16, y: -16, width: 32, height: 32, rx: 8, fill: "#fff", stroke: "#3b2a1a", "stroke-width": 3 }, g);
+  const t = el("text", { y: 7, "font-size": 18, "text-anchor": "middle" }, g); t.textContent = "🚉";
+  const l = el("text", { x: st.lx ?? 0, y: st.ly ?? 32, "text-anchor": st.anchor ?? "middle", class: "label-small" }, g); l.textContent = st.name;
+});
+
+// ピン
+SHOPS.forEach(s => {
+  const z = ZONES[s.zone];
+  const g = el("g", { class: "pin", transform: `translate(${s.x} ${s.y})`, tabindex: 0, role: "button", "aria-label": `${s.id}. ${s.name}`, "data-id": s.id }, pinsLayer);
+  el("circle", { class: "glow", r: 26, fill: z.hex, opacity: 0 }, g);
+  const bob = el("g", { class: "bob" }, g);
+  const body = el("g", { class: "body" }, bob);
+  el("path", { d: "M0 0 C -6 -10, -20 -18, -20 -32 A 20 20 0 1 1 20 -32 C 20 -18, 6 -10, 0 0z", fill: z.hex, stroke: "#3b2a1a", "stroke-width": 3 }, body);
+  el("circle", { cx: 0, cy: -32, r: 14, fill: "#fff" }, body);
+  const emo = el("text", { class: "pin-emoji", x: 0, y: -25, "text-anchor": "middle" }, body);
+  emo.textContent = z.emoji;
+  el("circle", { cx: 16, cy: -48, r: 10, fill: "#3b2a1a", stroke: "#fff", "stroke-width": 2 }, body);
+  const num = el("text", { class: "pin-num", x: 16, y: -44, "text-anchor": "middle" }, body);
+  num.textContent = s.id;
+  const title = el("title", {}, g); title.textContent = `${s.id}. ${s.name}`;
+
+  g.addEventListener("click", () => openCard(s));
+  g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCard(s); } });
+  g.addEventListener("mouseenter", () => highlight(s.id, false));
+  g.addEventListener("mouseleave", () => highlight(null, false));
+  s.pinEl = g;
+});
+
+// フィルター
+const filterDefs = [{ key: "all", label: "🎪 ぜんぶ", hex: "#3b2a1a" }]
+  .concat(Object.entries(ZONES).map(([k, z]) => ({ key: k, label: `${z.emoji} ${z.name}`, hex: z.hex })));
+filterDefs.forEach(f => {
+  const b = document.createElement("button");
+  b.textContent = f.label;
+  b.dataset.zone = f.key;
+  b.addEventListener("click", () => setZone(f.key));
+  filtersEl.appendChild(b);
+  f.btn = b;
+});
+
+function setZone(key) {
+  currentZone = key;
+  filterDefs.forEach(f => {
+    const on = f.key === key;
+    f.btn.classList.toggle("on", on);
+    f.btn.style.background = on ? f.hex : "#fff";
+  });
+  SHOPS.forEach(s => {
+    const show = key === "all" || s.zone === key;
+    s.pinEl.classList.toggle("dim", !show);
+    s.liEl.style.display = show ? "" : "none";
+  });
+}
+
+// 一覧
+SHOPS.forEach(s => {
+  const z = ZONES[s.zone];
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <span class="num" style="background:${z.hex}">${s.id}</span>
+    <span>
+      <div class="name">${s.name}${s.chain ? '<span class="chain-badge">チェーン</span>' : ""}</div>
+      <div class="meta">${z.emoji} ${z.name}｜${s.genre}</div>
+    </span>
+    <span class="walk">🚶 約${s.walkMin}分</span>`;
+  li.addEventListener("click", () => {
+    highlight(s.id, true);
+    centerMapOn(s.x, s.y, false);
+    openCard(s);
+  });
+  li.addEventListener("mouseenter", () => highlight(s.id, false));
+  li.addEventListener("mouseleave", () => highlight(null, false));
+  listEl.appendChild(li);
+  s.liEl = li;
+});
+
+// 凡例
+Object.values(ZONES).forEach(z => {
+  const sp = document.createElement("span");
+  sp.innerHTML = `<i style="background:${z.hex}"></i>${z.emoji} ${z.name}`;
+  legendEl.appendChild(sp);
+});
+const hereLeg = document.createElement("span");
+hereLeg.innerHTML = `<i style="background:#e5483a"></i>★ 現在地`;
+legendEl.appendChild(hereLeg);
+
+let stickyId = null;
+function highlight(id, sticky) {
+  if (sticky) stickyId = id;
+  const target = id ?? stickyId;
+  SHOPS.forEach(s => {
+    const on = s.id === target;
+    s.pinEl.classList.toggle("active", on);
+    s.liEl.classList.toggle("active", on);
+  });
+  // 前面に出す
+  const s = SHOPS.find(x => x.id === target);
+  if (s) pinsLayer.appendChild(s.pinEl);
+}
+
+// 詳細カード
+const overlay = document.getElementById("overlay");
+function openCard(s) {
+  const z = ZONES[s.zone];
+  highlight(s.id, true);
+  document.getElementById("cardHead").style.backgroundColor = z.hex;
+  document.getElementById("cardZone").textContent = `No.${s.id}｜${z.name}${s.chain ? "｜チェーン店" : ""}`;
+  document.getElementById("cardTitle").textContent = s.name;
+  document.getElementById("cardEmoji").textContent = z.emoji;
+  document.getElementById("cardGenre").textContent = s.genre;
+  document.getElementById("cardTakeout").textContent = s.takeout;
+  document.getElementById("cardPrice").textContent = s.price;
+  document.getElementById("cardAddress").textContent = s.address;
+  document.getElementById("cardWalk").textContent = `🚶 徒歩 約${s.walkMin}分（約${Math.round(s.walkMin * METERS_PER_MIN / 10) * 10}m・目安）`;
+  document.getElementById("cardMeter").innerHTML =
+    Array.from({ length: 5 }, (_, i) => `<span class="${i < s.meat ? "" : "off"}">${z.meterIcon || "🍖"}</span>`).join("");
+  document.getElementById("cardMeterLabel").textContent = z.meterLabel || "肉度メーター";
+  document.getElementById("cardNote").textContent = "💬 " + s.note;
+  const q = encodeURIComponent(`${s.name} ${s.address.replace(/（.*?）/g, "")}`);
+  document.getElementById("cardMap").href = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  overlay.classList.add("show");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+  document.querySelector("#overlay .card").scrollTop = 0;
+  document.getElementById("cardClose").focus({ preventScroll: true });
+}
+function closeCard() {
+  overlay.classList.remove("show");
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
+
+// ===== スマホ用：マップの拡大・移動 =====
+const mapScroll = document.getElementById("mapScroll");
+const mapSvg = document.getElementById("map");
+const mobileMQ = window.matchMedia("(max-width: 760px)");
+const ZOOM_STEPS = [1, 1.4, 1.9];   // 「画面の高さにぴったり」を1とした倍率
+let zoomIdx = 1;
+
+function baseMapWidth() {
+  // マップの高さが表示枠の高さと同じになる幅（これより小さくすると余白が出る）
+  const byHeight = mapScroll.clientHeight * 1200 / 820;
+  return Math.max(mapScroll.clientWidth, byHeight);
+}
+function applyZoom(keepCenter) {
+  if (!mobileMQ.matches) { mapSvg.style.width = ""; return; }
+  const cw = mapScroll.clientWidth, ch = mapScroll.clientHeight;
+  const oldW = mapSvg.getBoundingClientRect().width || 1, oldH = mapSvg.getBoundingClientRect().height || 1;
+  const cx = (mapScroll.scrollLeft + cw / 2) / oldW;
+  const cy = (mapScroll.scrollTop + ch / 2) / oldH;
+  mapSvg.style.width = Math.round(baseMapWidth() * ZOOM_STEPS[zoomIdx]) + "px";
+  if (keepCenter) {
+    mapScroll.scrollLeft = cx * mapSvg.getBoundingClientRect().width - cw / 2;
+    mapScroll.scrollTop = cy * mapSvg.getBoundingClientRect().height - ch / 2;
+  }
+  document.getElementById("zoomIn").disabled = zoomIdx === ZOOM_STEPS.length - 1;
+  document.getElementById("zoomOut").disabled = zoomIdx === 0;
+}
+function centerMapOn(x, y, smooth) {
+  if (!mobileMQ.matches) return;
+  const scale = mapSvg.getBoundingClientRect().width / 1200;
+  mapScroll.scrollTo({
+    left: x * scale - mapScroll.clientWidth / 2,
+    top: y * scale - mapScroll.clientHeight / 2 - 20,
+    behavior: smooth ? "smooth" : "auto",
+  });
+}
+document.getElementById("zoomIn").addEventListener("click", () => {
+  if (zoomIdx < ZOOM_STEPS.length - 1) { zoomIdx++; applyZoom(true); }
+});
+document.getElementById("zoomOut").addEventListener("click", () => {
+  if (zoomIdx > 0) { zoomIdx--; applyZoom(true); }
+});
+document.getElementById("zoomHere").addEventListener("click", () => centerMapOn(HERE.x, HERE.y, true));
+
+const mapHint = document.getElementById("mapHint");
+const hideHint = () => mapHint.classList.add("hide");
+mapScroll.addEventListener("touchstart", hideHint, { once: true, passive: true });
+mapScroll.addEventListener("pointerdown", hideHint, { once: true, passive: true });
+setTimeout(hideHint, 6000);
+
+function setupMap() {
+  applyZoom(false);
+  centerMapOn(HERE.x, HERE.y, false);
+}
+mobileMQ.addEventListener("change", () => setTimeout(setupMap, 250));
+// 幅が変わったときだけ合わせ直す（iPhoneはスクロールでツールバーが伸び縮みしてresizeが起きるため）
+let resizeTimer, lastBox = "";
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    const box = mapScroll.clientWidth + "x" + mapScroll.clientHeight;
+    if (box !== lastBox) { lastBox = box; applyZoom(true); }
+  }, 150);
+});
+setupMap();
+window.addEventListener("load", () => {
+  lastBox = mapScroll.clientWidth + "x" + mapScroll.clientHeight;
+  setupMap();
+});
+document.getElementById("cardClose").addEventListener("click", closeCard);
+overlay.addEventListener("click", e => { if (e.target === overlay) closeCard(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeCard(); });
+
+// 本日のおすすめ
+document.getElementById("lucky").addEventListener("click", () => {
+  const pool = SHOPS.filter(s => currentZone === "all" || s.zone === currentZone);
+  let n = 0;
+  const btn = document.getElementById("lucky");
+  btn.disabled = true;
+  const timer = setInterval(() => {
+    const s = pool[Math.floor(Math.random() * pool.length)];
+    highlight(s.id, true);
+    if (++n >= 14) {
+      clearInterval(timer);
+      btn.disabled = false;
+      centerMapOn(s.x, s.y, false);
+      openCard(s);
+    }
+  }, 90);
+});
+
+setZone("all");
+
+// 印刷するときは全店を表示し、カードとハイライトを消す
+window.addEventListener("beforeprint", () => {
+  closeCard();
+  setZone("all");
+  stickyId = null;
+  highlight(null, false);
+});
+</script>
+</body>
+</html>
